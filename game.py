@@ -40,6 +40,23 @@ fontStartGame = pygame.font.SysFont("monospace", 25)
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     surface.blit(text_obj, (x, y))
+def check_collision():
+    global score_player1, score_player2
+
+    # Check if any player 1's bullets collide with player 2
+    for bullet in settings.player1_bullets[:]:
+        if (settings.player2_pos[0] < bullet.x < settings.player2_pos[0] + settings.player_size and
+            settings.player2_pos[1] < bullet.y < settings.player2_pos[1] + settings.player_size):
+            score_player1 += 5  # Player 1 gets 10 points
+            settings.player1_bullets.remove(bullet)  # Remove the bullet after it hits
+
+    # Check if any player 2's bullets collide with player 1
+    for bullet in settings.player2_bullets[:]:
+        if (settings.player1_pos[0] < bullet.x < settings.player1_pos[0] + settings.player_size and
+            settings.player1_pos[1] < bullet.y < settings.player1_pos[1] + settings.player_size):
+            score_player2 += 5  # Player 2 gets 10 points
+            settings.player2_bullets.remove(bullet)  # Remove the bullet after it hits
+
 
 
 while game_state == "menu":
@@ -118,23 +135,21 @@ while not game_over:
     if keys[pygame.K_a] and settings.player2_pos[0] > 0:
         settings.player2_pos[0] -= settings.player_speed
     if keys[pygame.K_d] and settings.player2_pos[0] < settings.WIDTH - settings.player_size:
-        settings. player2_pos[0] += settings.player_speed
+        settings.player2_pos[0] += settings.player_speed
     if keys[pygame.K_w] and settings.player2_pos[1] > 0:
         settings.player2_pos[1] -= settings.player_speed
     if keys[pygame.K_s] and settings.player2_pos[1] < settings.HEIGHT / 3 - settings.player_size:  # Restrict downward movement
-        settings. player2_pos[1] += settings.player_speed
+        settings.player2_pos[1] += settings.player_speed
 
     # Shooting bullets for player 1
     if keys[pygame.K_SPACE]:
-        new_bullet1 = Bullet(settings.player1_pos[0] +settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
+        new_bullet1 = Bullet(settings.player1_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
         settings.player1_bullets.append(new_bullet1)
 
     # Shooting bullets for player 2
     if keys[pygame.K_RETURN]:  # Use Enter key for player 2 shooting
         new_bullet2 = Bullet(settings.player2_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player2_pos[1], 'down')
         settings.player2_bullets.append(new_bullet2)
-
-
 
     # Move and draw player 1's bullets
     for bullet in settings.player1_bullets[:]:
@@ -146,12 +161,25 @@ while not game_over:
         bullet.move()
         bullet.draw()
 
-
+    # Check for collisions and update score
+    check_collision()
 
     # Draw players
-    pygame.draw.rect(settings.screen, colors.GREEN, (settings.player1_pos[0], settings.player1_pos[1], settings.player_size, settings.player_size))  # Player 1
-    pygame.draw.rect(settings.screen, colors.WHITE, (settings.player2_pos[0], settings.player2_pos[1], settings.player_size, settings.player_size))  # Player 2
+    # pygame.draw.rect(settings.screen, colors.GREEN, (settings.player1_pos[0], settings.player1_pos[1], settings.player_size, settings.player_size))  # Player 1
+    # pygame.draw.rect(settings.screen, colors.WHITE, (settings.player2_pos[0], settings.player2_pos[1], settings.player_size, settings.player_size))  # Player 2
+    player1_image = pygame.image.load('avionce.png')
+    player2_image = pygame.image.load('avioncePrevrteno.png')
 
+    # Scale the images to make them smaller (you can change the size factor to make it as small as you want)
+    scaled_width = settings.player_size *1.5  # Adjust this value to make the image smaller (half size in this case)
+    scaled_height = settings.player_size *1.5  # Adjust this value to make the image smaller (half size in this case)
+
+    player1_image = pygame.transform.scale(player1_image, (scaled_width, scaled_height))
+    player2_image = pygame.transform.scale(player2_image, (scaled_width, scaled_height))
+
+    # Draw players using the scaled images
+    settings.screen.blit(player1_image, (settings.player1_pos[0], settings.player1_pos[1]))  # Player 1 icon
+    settings.screen.blit(player2_image, (settings.player2_pos[0], settings.player2_pos[1]))
     # Draw scores
     draw_text(f"{player1_name}: {score_player1}", font, colors.WHITE, settings.screen, 10, 10)
     draw_text(f"{player2_name}: {score_player2}", font, colors.WHITE, settings.screen, settings.WIDTH - 200, 10)
