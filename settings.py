@@ -13,8 +13,8 @@ bullet_list_size=[1,2,3,4,5,6,7,8,9,10]
 bullet_list_speed=[6,7,8,9,10,11,12,13,14,15]
 player_size = 50
 player_speed = 10
-bullet_size = bullet_list_size[1]
-bullet_speed = bullet_list_speed[9]
+bullet_size = bullet_list_size[9]
+bullet_speed = bullet_list_speed[3]
 
 # Player positions
 player1_pos = [WIDTH // 2, HEIGHT - 2 * player_size]  # Player 1 at the bottom

@@ -11,17 +11,10 @@ pygame.init()
 player1_name = ""
 player2_name = ""
 
-
-
-
-
-
-
-
-
 # Add a game state to control the flow
-# game_state = "menu"  # Initial state is the menu
-game_state = "daSeOdkomentiraMenu"
+game_state = "menu"  # Initial state is the menu
+game_state = "menu1"  # Initial state is the menu
+# F
 # Text input settings
 active_input = None  # Tracks which input is active
 input_box1 = pygame.Rect(settings.WIDTH // 2 - 115, settings.HEIGHT // 2 - 70, 300, 40)  # Player 1 input box
@@ -95,8 +88,8 @@ while game_state == "menu":
     pygame.draw.rect(settings.screen, settings.button_color, start_button)
 
     # Render input text
-    text_surface1 = settings.input_font.render(player1_name, True, colors.BLACK)
-    text_surface2 = settings.input_font.render(player2_name, True, colors.BLACK)
+    text_surface1 = input_font.render(player1_name, True, colors.BLACK)
+    text_surface2 = input_font.render(player2_name, True, colors.BLACK)
     button_text = fontStartGame.render("Start Game", True, colors.RED)
     settings.screen.blit(text_surface1, (input_box1.x + 10, input_box1.y + 5))
     settings.screen.blit(text_surface2, (input_box2.x + 10, input_box2.y + 5))
@@ -142,12 +135,12 @@ while not game_over:
         settings.player2_pos[1] += settings.player_speed
 
     # Shooting bullets for player 1
-    if keys[pygame.K_SPACE]:
+    if keys[pygame.K_RETURN]:
         new_bullet1 = Bullet(settings.player1_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
         settings.player1_bullets.append(new_bullet1)
 
     # Shooting bullets for player 2
-    if keys[pygame.K_RETURN]:  # Use Enter key for player 2 shooting
+    if keys[pygame.K_SPACE]:  # Use Enter key for player 2 shooting
         new_bullet2 = Bullet(settings.player2_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player2_pos[1], 'down')
         settings.player2_bullets.append(new_bullet2)
 
@@ -167,8 +160,8 @@ while not game_over:
     # Draw players
     # pygame.draw.rect(settings.screen, colors.GREEN, (settings.player1_pos[0], settings.player1_pos[1], settings.player_size, settings.player_size))  # Player 1
     # pygame.draw.rect(settings.screen, colors.WHITE, (settings.player2_pos[0], settings.player2_pos[1], settings.player_size, settings.player_size))  # Player 2
-    player1_image = pygame.image.load('avionce.png')
-    player2_image = pygame.image.load('avioncePrevrteno.png')
+    player1_image = pygame.image.load('images/avionce.png')
+    player2_image = pygame.image.load('images/avioncePrevrteno.png')
 
     # Scale the images to make them smaller (you can change the size factor to make it as small as you want)
     scaled_width = settings.player_size *1.5  # Adjust this value to make the image smaller (half size in this case)

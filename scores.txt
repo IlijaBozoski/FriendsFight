@@ -1,0 +1,4 @@
+Ilija,240
+Boza,230
+Boza1,100
+Boza12,1020
