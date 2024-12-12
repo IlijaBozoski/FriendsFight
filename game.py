@@ -2,6 +2,7 @@ import pygame
 import random
 import sys
 
+import scoreManipulations
 import settings
 from Bullet import Bullet
 import colors
@@ -13,8 +14,8 @@ player2_name = ""
 
 # Add a game state to control the flow
 game_state = "menu"  # Initial state is the menu
-game_state = "menu1"  # Initial state is the menu
-# F
+# game_state = "menu1"  # Initial state is the menu
+
 # Text input settings
 active_input = None  # Tracks which input is active
 input_box1 = pygame.Rect(settings.WIDTH // 2 - 115, settings.HEIGHT // 2 - 70, 300, 40)  # Player 1 input box
@@ -29,6 +30,17 @@ score_player1 = 0
 score_player2 = 0
 font = pygame.font.SysFont("monospace", 35)
 fontStartGame = pygame.font.SysFont("monospace", 25)
+def handle_player(player_name):
+    user=scoreManipulations.userExists(player_name)
+    if user:
+        score=user[1]
+        level=scoreManipulations.findBulletLevels(int (score))
+        return level
+    else:
+        level=[0,0]
+        return level
+
+
 
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
@@ -67,6 +79,7 @@ while game_state == "menu":
             elif input_box2.collidepoint(event.pos):
                 active_input = "player2"
             elif start_button.collidepoint(event.pos) and player1_name and player2_name:
+
                 game_state = "game"  # Proceed to the game
             else:
                 active_input = None
@@ -129,18 +142,22 @@ while not game_over:
         settings.player2_pos[0] -= settings.player_speed
     if keys[pygame.K_d] and settings.player2_pos[0] < settings.WIDTH - settings.player_size:
         settings.player2_pos[0] += settings.player_speed
-    if keys[pygame.K_w] and settings.player2_pos[1] > 0:
+    if keys[pygame.K_s] and settings.player2_pos[1] > 0:
         settings.player2_pos[1] -= settings.player_speed
-    if keys[pygame.K_s] and settings.player2_pos[1] < settings.HEIGHT / 3 - settings.player_size:  # Restrict downward movement
+    if keys[pygame.K_w] and settings.player2_pos[1] < settings.HEIGHT / 3 - settings.player_size:  # Restrict downward movement
         settings.player2_pos[1] += settings.player_speed
 
     # Shooting bullets for player 1
     if keys[pygame.K_RETURN]:
+        level=handle_player(player1_name)
+        settings.setBulletParams(level[0],level[1])
         new_bullet1 = Bullet(settings.player1_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
         settings.player1_bullets.append(new_bullet1)
 
     # Shooting bullets for player 2
     if keys[pygame.K_SPACE]:  # Use Enter key for player 2 shooting
+        level = handle_player(player2_name)
+        settings.setBulletParams(level[0], level[1])
         new_bullet2 = Bullet(settings.player2_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player2_pos[1], 'down')
         settings.player2_bullets.append(new_bullet2)
 
