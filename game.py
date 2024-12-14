@@ -98,8 +98,10 @@ while game_state == "menu":
             elif input_box2.collidepoint(event.pos):
                 active_input = "player2"
             elif start_button.collidepoint(event.pos) and player1_name and player2_name:
-
-                game_state = "game"  # Proceed to the game
+                if player1_name == player2_name:
+                    warning_message = "Choose different names!"
+                else:
+                    game_state = "game"  # Proceed to the game
             else:
                 active_input = None
         elif event.type == pygame.KEYDOWN and active_input:
@@ -122,14 +124,23 @@ while game_state == "menu":
     # Render input text
     text_surface1 = input_font.render(player1_name, True, colors.BLACK)
     text_surface2 = input_font.render(player2_name, True, colors.BLACK)
-    button_text = fontStartGame.render("Start Game", True, colors.RED)
+    fontSame = pygame.font.SysFont("monospace", 50)
+
+    # Render warning if names are the same
+    if player1_name == player2_name and player1_name:
+        draw_text("Choose different names!", fontSame, colors.RED, settings.screen, settings.WIDTH // 2 - 325,
+                  settings.HEIGHT // 2 + 300)
+    else:
+
+        button_text = fontStartGame.render("Start Game", True, colors.RED)
+        settings.screen.blit(button_text, (start_button.x + 30, start_button.y + 10))
     settings.screen.blit(text_surface1, (input_box1.x + 10, input_box1.y + 5))
     settings.screen.blit(text_surface2, (input_box2.x + 10, input_box2.y + 5))
-    settings.screen.blit(button_text, (start_button.x + 30, start_button.y + 10))
 
     # Render labels
     draw_text("Player 1:", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 300, settings.HEIGHT // 2 - 70)
     draw_text("Player 2:", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 300, settings.HEIGHT // 2)
+
 
     pygame.display.flip()
     clock.tick(30)

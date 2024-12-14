@@ -1,8 +1,11 @@
-Ilija,3890
+Ilija,4190
 Boza,230
 Boza1,100
 Boza12,1020
 nov,300
 nov1,0
-s,330
+s,3430
 da,55
+Nov,0
+Nob,1200
+s1,0
