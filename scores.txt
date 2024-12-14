@@ -1,4 +1,8 @@
-Ilija,2240
+Ilija,3890
 Boza,230
 Boza1,100
 Boza12,1020
+nov,300
+nov1,0
+s,330
+da,55

@@ -64,6 +64,18 @@ def findBulletLevels(score):
         return [8, 9]
     else:
         return [9, 9]
-
+def findPlane(score):
+    if score <= 600:
+        return 0
+    elif score <= 1200:
+        return 1
+    elif score <= 1800:
+        return 2
+    elif score <= 2400:
+        return 3
+    elif score <= 3000:
+        return 4
+    else:
+        return 5
 
 

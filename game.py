@@ -23,7 +23,12 @@ input_box2 = pygame.Rect(settings.WIDTH // 2 - 115, settings.HEIGHT  // 2, 300, 
 start_button = pygame.Rect(settings.WIDTH // 2 - 60, settings.HEIGHT  // 2 + 70, 200, 50)  # Moved 20 pixels to the right
 
 input_font = pygame.font.SysFont("monospace", 30)
-
+planes=[['images/cessna-removebg-preview.png',"images/cessna-removebg-reversed-preview.png"],
+        ["images/mustang-removebg-preview.png","images/mustang-removebg-reversed-preview.png"],
+        ["images/avionce.png","images/avioncePrevrteno.png"],
+        ["images/mig-removebg-preview.png","images/mig-removebg-reversed-preview.png"],
+        ["images/f16-removebg-preview.png","images/f16-removebg-reversed-preview.png"],
+        ["images/b2-removebg-preview.png","images/b2-removebg-reverse-preview.png"]]
 # Game settings
 clock = pygame.time.Clock()
 score_player1 = 0
@@ -35,9 +40,11 @@ def handle_player(player_name):
     if user:
         score=user[1]
         level=scoreManipulations.findBulletLevels(int (score))
+        plane=scoreManipulations.findPlane(int(score))
+        level.append(plane)
         return level
     else:
-        level=[0,0]
+        level=[0,0,0]
         return level
 
 
@@ -62,7 +69,19 @@ def check_collision():
             score_player2 += 5  # Player 2 gets 10 points
             settings.player2_bullets.remove(bullet)  # Remove the bullet after it hits
 
+def check_game_over(player1_score, player2_score, screen, font):
 
+    if player1_score >= 300 or player2_score >= 300:
+        scoreManipulations.updateScores(player1_name,player1_score,player2_name,player2_score)
+        screen.fill((0, 0, 0))  # Clear the screen
+        winner = player1_name if player1_score >= 300 else player2_name
+        game_over_text = font.render(f"Game Over! {winner} Wins!", True, (255, 255, 255))
+        screen.blit(game_over_text, (screen.get_width() // 2 - game_over_text.get_width() // 2,
+                                     screen.get_height() // 2 - game_over_text.get_height() // 2))
+        pygame.display.flip()
+        pygame.time.wait(3000)  # Wait for 3 seconds before exiting
+        return True
+    return False
 
 while game_state == "menu":
     settings.screen.fill(colors.PURPLE)
@@ -132,41 +151,40 @@ while not game_over:
         settings.player1_pos[0] -= settings.player_speed
     if keys[pygame.K_RIGHT] and settings.player1_pos[0] < settings.WIDTH - settings.player_size:
         settings.player1_pos[0] += settings.player_speed
-    if keys[pygame.K_UP] and settings.player1_pos[1] > settings.HEIGHT * 2 / 3:  # Restrict upward movement
+    if keys[pygame.K_UP] and settings.player1_pos[1] > settings.HEIGHT * 2 / 3:
         settings.player1_pos[1] -= settings.player_speed
     if keys[pygame.K_DOWN] and settings.player1_pos[1] < settings.HEIGHT - settings.player_size:
         settings.player1_pos[1] += settings.player_speed
 
-    # Player 2 (WASD) movement (restricted to the top third)
+    # Player 2 (WASD) movement
     if keys[pygame.K_a] and settings.player2_pos[0] > 0:
         settings.player2_pos[0] -= settings.player_speed
     if keys[pygame.K_d] and settings.player2_pos[0] < settings.WIDTH - settings.player_size:
         settings.player2_pos[0] += settings.player_speed
     if keys[pygame.K_s] and settings.player2_pos[1] > 0:
         settings.player2_pos[1] -= settings.player_speed
-    if keys[pygame.K_w] and settings.player2_pos[1] < settings.HEIGHT / 3 - settings.player_size:  # Restrict downward movement
+    if keys[pygame.K_w] and settings.player2_pos[1] < settings.HEIGHT / 3 - settings.player_size:
         settings.player2_pos[1] += settings.player_speed
 
     # Shooting bullets for player 1
     if keys[pygame.K_RETURN]:
-        level=handle_player(player1_name)
-        settings.setBulletParams(level[0],level[1])
+        level = handle_player(player1_name)
+        settings.setBulletParams(level[0], level[1])
         new_bullet1 = Bullet(settings.player1_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
         settings.player1_bullets.append(new_bullet1)
 
     # Shooting bullets for player 2
-    if keys[pygame.K_SPACE]:  # Use Enter key for player 2 shooting
+    if keys[pygame.K_SPACE]:
         level = handle_player(player2_name)
         settings.setBulletParams(level[0], level[1])
         new_bullet2 = Bullet(settings.player2_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player2_pos[1], 'down')
         settings.player2_bullets.append(new_bullet2)
 
-    # Move and draw player 1's bullets
+    # Move and draw bullets
     for bullet in settings.player1_bullets[:]:
         bullet.move()
         bullet.draw()
 
-    # Move and draw player 2's bullets
     for bullet in settings.player2_bullets[:]:
         bullet.move()
         bullet.draw()
@@ -175,34 +193,28 @@ while not game_over:
     check_collision()
 
     # Draw players
-    # pygame.draw.rect(settings.screen, colors.GREEN, (settings.player1_pos[0], settings.player1_pos[1], settings.player_size, settings.player_size))  # Player 1
-    # pygame.draw.rect(settings.screen, colors.WHITE, (settings.player2_pos[0], settings.player2_pos[1], settings.player_size, settings.player_size))  # Player 2
-    player1_image = pygame.image.load('images/avionce.png')
-    player2_image = pygame.image.load('images/avioncePrevrteno.png')
-
-    # Scale the images to make them smaller (you can change the size factor to make it as small as you want)
-    scaled_width = settings.player_size *1.5  # Adjust this value to make the image smaller (half size in this case)
-    scaled_height = settings.player_size *1.5  # Adjust this value to make the image smaller (half size in this case)
-
+    plane1=handle_player(player1_name)[2]
+    plane2=handle_player(player2_name)[2]
+    player1_image = pygame.image.load(planes[plane1][0])
+    player2_image = pygame.image.load(planes[plane2][1])
+    scaled_width = settings.player_size * 1.5
+    scaled_height = settings.player_size * 1.5
     player1_image = pygame.transform.scale(player1_image, (scaled_width, scaled_height))
     player2_image = pygame.transform.scale(player2_image, (scaled_width, scaled_height))
-
-    # Draw players using the scaled images
-    settings.screen.blit(player1_image, (settings.player1_pos[0], settings.player1_pos[1]))  # Player 1 icon
+    settings.screen.blit(player1_image, (settings.player1_pos[0], settings.player1_pos[1]))
     settings.screen.blit(player2_image, (settings.player2_pos[0], settings.player2_pos[1]))
+
     # Draw scores
     draw_text(f"{player1_name}: {score_player1}", font, colors.WHITE, settings.screen, 10, 10)
     draw_text(f"{player2_name}: {score_player2}", font, colors.WHITE, settings.screen, settings.WIDTH - 200, 10)
 
+    # Check for game over
+    if check_game_over(score_player1, score_player2, settings.screen, font):
+        game_over = True
+
     pygame.display.flip()
     clock.tick(30)
 
-# Game over screen
-settings.screen.fill(colors.DARKBLUE)
-draw_text("Game Over", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 100, settings.HEIGHT // 2)
-draw_text(f"Player 1 Final Score: {score_player1}", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 150, settings.HEIGHT // 2 + 40)
-draw_text(f"Player 2 Final Score: {score_player2}", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 150, settings.HEIGHT // 2 + 80)
-pygame.display.flip()
-pygame.time.wait(3000)
+# Cleanup
 pygame.quit()
 sys.exit()
