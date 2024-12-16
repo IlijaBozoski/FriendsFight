@@ -23,12 +23,12 @@ input_box2 = pygame.Rect(settings.WIDTH // 2 - 115, settings.HEIGHT  // 2, 300, 
 start_button = pygame.Rect(settings.WIDTH // 2 - 60, settings.HEIGHT  // 2 + 70, 200, 50)  # Moved 20 pixels to the right
 
 input_font = pygame.font.SysFont("monospace", 30)
-planes=[['images/cessna-removebg-preview.png',"images/cessna-removebg-reversed-preview.png"],
-        ["images/mustang-removebg-preview.png","images/mustang-removebg-reversed-preview.png"],
-        ["images/avionce.png","images/avioncePrevrteno.png"],
-        ["images/mig-removebg-preview.png","images/mig-removebg-reversed-preview.png"],
-        ["images/f16-removebg-preview.png","images/f16-removebg-reversed-preview.png"],
-        ["images/b2-removebg-preview.png","images/b2-removebg-reverse-preview.png"]]
+planes=[['images/cessna-removebg-preview.png',"images/cessna-removebg-reversed-preview.png",150],
+        ["images/mustang-removebg-preview.png","images/mustang-removebg-reversed-preview.png",200],
+        ["images/avionce.png","images/avioncePrevrteno.png",150],
+        ["images/mig-removebg-preview.png","images/mig-removebg-reversed-preview.png",200],
+        ["images/f16-removebg-preview.png","images/f16-removebg-reversed-preview.png",220],
+        ["images/b2-removebg-preview.png","images/b2-removebg-reverse-preview.png",400]]
 # Game settings
 clock = pygame.time.Clock()
 score_player1 = 0
@@ -81,9 +81,30 @@ def check_game_over(player1_score, player2_score, screen, font):
         pygame.display.flip()
         pygame.time.wait(3000)  # Wait for 3 seconds before exiting
         return True
+    elif player1_plane_bulletsC == 0 and player2_plane_bulletsC == 0:
+        scoreManipulations.updateScores(player1_name, player1_score, player2_name, player2_score)
+
+        # Clear the screen
+        screen.fill((0, 0, 0))
+
+        # Render the game-over text
+        game_over_text = font.render(f"Both planes winchester, no winner!", True, (255, 255, 255))
+        screen.blit(game_over_text,
+                    (screen.get_width() // 2 - game_over_text.get_width() // 2,
+                     screen.get_height() // 2 - game_over_text.get_height() // 2))
+
+        # Update the display
+        pygame.display.flip()
+
+        # Wait for 3 seconds before exiting
+        pygame.time.wait(3000)
+        return True
     return False
 
 while game_state == "menu":
+    player1_plane_bulletsC=0
+    player2_plane_bulletsC=0
+
     settings.screen.fill(colors.PURPLE)
 
     # Event handling for the input screen
@@ -147,6 +168,13 @@ while game_state == "menu":
 
 # Main game loop
 game_over = False
+
+plane1B = handle_player(player1_name)[2]
+plane2B = handle_player(player2_name)[2]
+
+player1_plane_bulletsC=planes[plane1B][2]
+player2_plane_bulletsC=planes[plane2B][2]
+print(player1_plane_bulletsC, player2_plane_bulletsC)
 while not game_over:
     settings.screen.fill(colors.DARKBLUE)
 
@@ -179,17 +207,22 @@ while not game_over:
 
     # Shooting bullets for player 1
     if keys[pygame.K_RETURN]:
-        level = handle_player(player1_name)
-        settings.setBulletParams(level[0], level[1])
-        new_bullet1 = Bullet(settings.player1_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
-        settings.player1_bullets.append(new_bullet1)
+        if player1_plane_bulletsC>0:
+
+            level = handle_player(player1_name)
+            settings.setBulletParams(level[0], level[1])
+            new_bullet1 = Bullet(settings.player1_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
+            settings.player1_bullets.append(new_bullet1)
+            player1_plane_bulletsC-=1
 
     # Shooting bullets for player 2
     if keys[pygame.K_SPACE]:
-        level = handle_player(player2_name)
-        settings.setBulletParams(level[0], level[1])
-        new_bullet2 = Bullet(settings.player2_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player2_pos[1], 'down')
-        settings.player2_bullets.append(new_bullet2)
+        if player2_plane_bulletsC > 0:
+            level = handle_player(player2_name)
+            settings.setBulletParams(level[0], level[1])
+            new_bullet2 = Bullet(settings.player2_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player2_pos[1], 'down')
+            settings.player2_bullets.append(new_bullet2)
+            player2_plane_bulletsC -= 1
 
     # Move and draw bullets
     for bullet in settings.player1_bullets[:]:
