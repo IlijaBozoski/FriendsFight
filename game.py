@@ -11,7 +11,7 @@ import colors
 pygame.init()
 player1_name = ""
 player2_name = ""
-
+leaderboard_button = pygame.Rect(settings.WIDTH // 2 - 60, settings.HEIGHT // 2 + 150, 200, 50)
 # Add a game state to control the flow
 game_state = "menu"  # Initial state is the menu
 # game_state = "menu1"  # Initial state is the menu
@@ -46,7 +46,26 @@ def handle_player(player_name):
     else:
         level=[0,0,0]
         return level
+def draw_leaderboard(screen):
+    screen.fill(colors.BLACK)  # Clear the screen with black
+    draw_text("Leaderboard", font, colors.WHITE, screen, settings.WIDTH // 2 - 100, 50)
 
+    # Fetch user scores from your database
+    leaderboard_data = scoreManipulations.sortScores()  # Assumes this returns [(username, score), ...]
+
+    # Display the leaderboard list
+    y_position = 120
+    for i, (username, score) in enumerate(leaderboard_data):
+        entry_text = f"{i + 1}. {username} - {score} pts"
+        draw_text(entry_text, font, colors.WHITE, screen, settings.WIDTH // 2 - 200, y_position)
+        y_position += 40  # Space between entries
+
+    # Render a back button
+    back_button = pygame.Rect(20, 20, 100, 50)
+    pygame.draw.rect(screen, settings.button_color, back_button)
+    draw_text("Back", fontStartGame, colors.RED, screen, 35, 35)
+
+    return back_button  # Return the button rect to detect clicks
 
 
 def draw_text(text, font, color, surface, x, y):
@@ -113,8 +132,11 @@ while game_state == "menu":
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            if leaderboard_button.collidepoint(event.pos):
+                game_state = "leaderboard"
+
             # Check if clicking in an input box
-            if input_box1.collidepoint(event.pos):
+            elif input_box1.collidepoint(event.pos):
                 active_input = "player1"
             elif input_box2.collidepoint(event.pos):
                 active_input = "player2"
@@ -161,11 +183,97 @@ while game_state == "menu":
     # Render labels
     draw_text("Player 1:", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 300, settings.HEIGHT // 2 - 70)
     draw_text("Player 2:", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 300, settings.HEIGHT // 2)
+    pygame.draw.rect(settings.screen, settings.button_color, leaderboard_button)
+    leaderboard_text = fontStartGame.render("Leaderboard", True, colors.RED)
+    settings.screen.blit(leaderboard_text, (leaderboard_button.x + 15, leaderboard_button.y + 10))
 
 
     pygame.display.flip()
     clock.tick(30)
+while game_state == "leaderboard":
+    back_button = draw_leaderboard(settings.screen)  # Draw leaderboard
 
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if back_button.collidepoint(event.pos):
+                game_state = "menu"  # Return to the menu
+
+    pygame.display.flip()
+    clock.tick(30)
+
+while game_state == "menu":
+    player1_plane_bulletsC=0
+    player2_plane_bulletsC=0
+
+    settings.screen.fill(colors.PURPLE)
+
+    # Event handling for the input screen
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if leaderboard_button.collidepoint(event.pos):
+                game_state = "leaderboard"
+
+            # Check if clicking in an input box
+            elif input_box1.collidepoint(event.pos):
+                active_input = "player1"
+            elif input_box2.collidepoint(event.pos):
+                active_input = "player2"
+            elif start_button.collidepoint(event.pos) and player1_name and player2_name:
+                if player1_name == player2_name:
+                    warning_message = "Choose different names!"
+                else:
+                    game_state = "game"  # Proceed to the game
+            else:
+                active_input = None
+        elif event.type == pygame.KEYDOWN and active_input:
+            if event.key == pygame.K_BACKSPACE:
+                if active_input == "player1":
+                    player1_name = player1_name[:-1]
+                elif active_input == "player2":
+                    player2_name = player2_name[:-1]
+            else:
+                if active_input == "player1":
+                    player1_name += event.unicode
+                elif active_input == "player2":
+                    player2_name += event.unicode
+
+    # Draw input boxes
+    pygame.draw.rect(settings.screen, settings.input_color_active if active_input == "player1" else settings.input_color_inactive, input_box1)
+    pygame.draw.rect(settings.screen, settings.input_color_active if active_input == "player2" else settings.input_color_inactive, input_box2)
+    pygame.draw.rect(settings.screen, settings.button_color, start_button)
+
+    # Render input text
+    text_surface1 = input_font.render(player1_name, True, colors.BLACK)
+    text_surface2 = input_font.render(player2_name, True, colors.BLACK)
+    fontSame = pygame.font.SysFont("monospace", 50)
+
+    # Render warning if names are the same
+    if player1_name == player2_name and player1_name:
+        draw_text("Choose different names!", fontSame, colors.RED, settings.screen, settings.WIDTH // 2 - 325,
+                  settings.HEIGHT // 2 + 300)
+    else:
+
+        button_text = fontStartGame.render("Start Game", True, colors.RED)
+        settings.screen.blit(button_text, (start_button.x + 30, start_button.y + 10))
+    settings.screen.blit(text_surface1, (input_box1.x + 10, input_box1.y + 5))
+    settings.screen.blit(text_surface2, (input_box2.x + 10, input_box2.y + 5))
+
+    # Render labels
+    draw_text("Player 1:", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 300, settings.HEIGHT // 2 - 70)
+    draw_text("Player 2:", font, colors.WHITE, settings.screen, settings.WIDTH // 2 - 300, settings.HEIGHT // 2)
+    pygame.draw.rect(settings.screen, settings.button_color, leaderboard_button)
+    leaderboard_text = fontStartGame.render("Leaderboard", True, colors.RED)
+    settings.screen.blit(leaderboard_text, (leaderboard_button.x + 15, leaderboard_button.y + 10))
+
+
+    pygame.display.flip()
+    clock.tick(30)
 # Main game loop
 game_over = False
 
@@ -175,6 +283,7 @@ plane2B = handle_player(player2_name)[2]
 player1_plane_bulletsC=planes[plane1B][2]
 player2_plane_bulletsC=planes[plane2B][2]
 print(player1_plane_bulletsC, player2_plane_bulletsC)
+
 while not game_over:
     settings.screen.fill(colors.DARKBLUE)
 

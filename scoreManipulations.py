@@ -11,6 +11,18 @@ def writeScores(scores):
             file.write(f"{player},{score}\n")
 
 
+def sortScores():
+    scores = []
+    with open('scores.txt', 'r', encoding='utf-8') as file:
+        for line in file:
+            user, score = line.strip().split(',')  # Split each line into user and score
+            scores.append([user, int(score)])  # Add user and score as a sublist, converting score to integer
+
+    # Sort by the score (second element of each sublist) in descending order
+    scores = sorted(scores, key=lambda x: x[1], reverse=True)
+    return scores
+
+
 def updateScores(player1, score1, player2, score2):
     scores = readScores()
     scores_dict = {item[0]: int(item[1]) for item in scores}
