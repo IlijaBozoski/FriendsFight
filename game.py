@@ -6,6 +6,7 @@ import scoreManipulations
 import settings
 from Bullet import Bullet
 import colors
+from Rocket import Rocket, RocketRevered
 
 # Initialize Pygame
 pygame.init()
@@ -23,12 +24,12 @@ input_box2 = pygame.Rect(settings.WIDTH // 2 - 115, settings.HEIGHT  // 2, 300, 
 start_button = pygame.Rect(settings.WIDTH // 2 - 60, settings.HEIGHT  // 2 + 70, 200, 50)  # Moved 20 pixels to the right
 
 input_font = pygame.font.SysFont("monospace", 30)
-planes=[['images/cessna-removebg-preview.png',"images/cessna-removebg-reversed-preview.png",150],
-        ["images/mustang-removebg-preview.png","images/mustang-removebg-reversed-preview.png",200],
-        ["images/avionce.png","images/avioncePrevrteno.png",150],
-        ["images/mig-removebg-preview.png","images/mig-removebg-reversed-preview.png",200],
-        ["images/f16-removebg-preview.png","images/f16-removebg-reversed-preview.png",220],
-        ["images/b2-removebg-preview.png","images/b2-removebg-reverse-preview.png",400]]
+planes=[['images/cessna-removebg-preview.png',"images/cessna-removebg-reversed-preview.png",150,0],
+        ["images/mustang-removebg-preview.png","images/mustang-removebg-reversed-preview.png",200,1],
+        ["images/avionce.png","images/avioncePrevrteno.png",150,2],
+        ["images/mig-removebg-preview.png","images/mig-removebg-reversed-preview.png",200,3],
+        ["images/f16-removebg-preview.png","images/f16-removebg-reversed-preview.png",220,4],
+        ["images/b2-removebg-preview.png","images/b2-removebg-reverse-preview.png",400,5]]
 # Game settings
 clock = pygame.time.Clock()
 score_player1 = 0
@@ -283,7 +284,8 @@ plane2B = handle_player(player2_name)[2]
 player1_plane_bulletsC=planes[plane1B][2]
 player2_plane_bulletsC=planes[plane2B][2]
 print(player1_plane_bulletsC, player2_plane_bulletsC)
-
+cntRockets1=0
+cntRockets2=0
 while not game_over:
     settings.screen.fill(colors.DARKBLUE)
 
@@ -323,6 +325,13 @@ while not game_over:
             new_bullet1 = Bullet(settings.player1_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player1_pos[1], 'up')
             settings.player1_bullets.append(new_bullet1)
             player1_plane_bulletsC-=1
+    if keys[pygame.K_l]:
+        if cntRockets1<3:
+            delta_time = clock.tick(60) / 1000.0
+            new_rocket1=RocketRevered(settings.player1_pos[0] + settings.player_size // 2 - 5,settings.player1_pos[1],'up',delta_time)
+            settings.player1_bullets.append(new_rocket1)
+            cntRockets1+=1
+
 
     # Shooting bullets for player 2
     if keys[pygame.K_SPACE]:
@@ -332,6 +341,13 @@ while not game_over:
             new_bullet2 = Bullet(settings.player2_pos[0] + settings.player_size // 2 - settings.bullet_size // 2, settings.player2_pos[1], 'down')
             settings.player2_bullets.append(new_bullet2)
             player2_plane_bulletsC -= 1
+    if keys[pygame.K_x]:
+        if cntRockets2 < 3:
+            delta_time = clock.tick(60) / 1000.0
+            new_rocket2 = Rocket(settings.player2_pos[0] + settings.player_size // 2 - 5, settings.player2_pos[1], 'down',
+                                 delta_time)
+            settings.player2_bullets.append(new_rocket2)
+            cntRockets2+=1
 
     # Move and draw bullets
     for bullet in settings.player1_bullets[:]:
