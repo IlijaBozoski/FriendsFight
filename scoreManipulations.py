@@ -5,7 +5,6 @@ def readScores():
             usersWithScores.append(line.strip().split(','))
     return usersWithScores
 def writeScores(scores):
-    # Assume we are storing scores in a file named "scores.txt"
     with open("scores.txt", "w") as file:
         for player, score in scores:
             file.write(f"{player},{score}\n")
@@ -15,10 +14,9 @@ def sortScores():
     scores = []
     with open('scores.txt', 'r', encoding='utf-8') as file:
         for line in file:
-            user, score = line.strip().split(',')  # Split each line into user and score
-            scores.append([user, int(score)])  # Add user and score as a sublist, converting score to integer
+            user, score = line.strip().split(',')
+            scores.append([user, int(score)])
 
-    # Sort by the score (second element of each sublist) in descending order
     scores = sorted(scores, key=lambda x: x[1], reverse=True)
     return scores
 

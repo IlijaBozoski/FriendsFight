@@ -10,13 +10,13 @@ class Bullet:
         self.y = y
         self.width = settings.bullet_size
         self.height = settings.bullet_size
-        self.direction = direction  # Direction is either 'up' or 'down'
+        self.direction = direction
 
     def move(self):
         if self.direction == 'up':
-            self.y -=settings.bullet_speed  # Move bullet upwards
+            self.y -=settings.bullet_speed
         elif self.direction == 'down':
-            self.y += settings.bullet_speed  # Move bullet downwards
+            self.y += settings.bullet_speed
 
     def draw(self):
         pygame.draw.rect(settings.screen, colors.WHITE, (self.x, self.y, self.width, self.height))

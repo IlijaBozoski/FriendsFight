@@ -14,7 +14,7 @@ class Rocket:
         self.height = 80
         self.image = pygame.image.load('images/r-removebg-preview.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
-        self.direction = direction  # Direction is either 'up' or 'down'
+        self.direction = direction
 
     def move(self):
         if self.direction == 'up':
@@ -34,8 +34,7 @@ class RocketRevered:
         self.height = 80
         self.image = pygame.image.load('images/r-removebg-preview-reversed.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
-        self.direction = direction  # Direction is either 'up' or 'down'
-
+        self.direction = direction
     def move(self):
         if self.direction == 'up':
             self.y -=70+self.delta_time  # Move bullet upwards
